@@ -54,7 +54,9 @@ export default function AppNavigator() {
              {(props) => <DashboardScreen {...props} setAuth={setIsAuthenticated} />}
           </Stack.Screen>
           <Stack.Screen name="Admin" component={AdminScreen} />
-          <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name="Profile">
+             {(props) => <ProfileScreen {...props} setAuth={setIsAuthenticated} />}
+          </Stack.Screen>
           <Stack.Screen name="TravelMatch" component={TravelMatchScreen} />
           <Stack.Screen name="LocalBuddy" component={LocalBuddyScreen} />
           <Stack.Screen name="SkillExchange" component={SkillExchangeScreen} />

@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView, Alert, Animated, KeyboardAvoidingView, Platform } from 'react-native';
 import tw from 'twrnc';
 import api from '../services/api';
-import { setUser, getStoredUser } from '../utils/auth';
+import { setUser, getStoredUser, logout } from '../utils/auth';
 
-export default function ProfileScreen({ navigation }) {
+export default function ProfileScreen({ navigation, setAuth }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [bio, setBio] = useState('');
@@ -138,6 +138,17 @@ export default function ProfileScreen({ navigation }) {
                 disabled={loading}
               >
                 <Text style={tw`text-white font-black text-lg tracking-wide`}>{loading ? 'Saving...' : 'Save Profile →'}</Text>
+              </TouchableOpacity>
+
+              {/* Logout Button */}
+              <TouchableOpacity
+                style={tw`bg-[#1a1f35] border border-[#ff6b6b] mt-4 w-full rounded-2xl py-4.5 items-center`}
+                onPress={async () => {
+                  await logout();
+                  setAuth(false);
+                }}
+              >
+                <Text style={tw`text-[#ff6b6b] font-black text-lg tracking-wide`}>Log Out</Text>
               </TouchableOpacity>
             </View>
 
