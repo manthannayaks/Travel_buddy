@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView, Alert, Animated, KeyboardAvoidingView, Platform } from 'react-native';
 import tw from 'twrnc';
 import api from '../services/api';
 import { setUser, getStoredUser } from '../utils/auth';
@@ -12,6 +12,7 @@ export default function ProfileScreen({ navigation }) {
   const [skills, setSkills] = useState('');
   const [loading, setLoading] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     fetchUserData();
@@ -29,13 +30,13 @@ export default function ProfileScreen({ navigation }) {
       Alert.alert('Error', 'Failed to load profile details.');
     } finally {
       setInitialLoad(false);
+      Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }).start();
     }
   };
 
   const handleUpdateProfile = async () => {
     setLoading(true);
     try {
-      // Convert comma-separated strings to arrays
       const hobbiesArray = hobbies.split(',').map(item => item.trim()).filter(Boolean);
       const skillsArray = skills.split(',').map(item => item.trim()).filter(Boolean);
 
@@ -57,91 +58,92 @@ export default function ProfileScreen({ navigation }) {
 
   if (initialLoad) {
     return (
-      <SafeAreaView style={tw`flex-1 bg-gray-50 items-center justify-center`}>
-        <Text style={tw`text-lg font-bold text-gray-500`}>Loading Profile...</Text>
+      <SafeAreaView style={tw`flex-1 bg-[#0a0e1a] items-center justify-center`}>
+        <Text style={tw`text-lg font-bold text-[#8892b0]`}>Loading Profile...</Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={tw`flex-1 bg-gray-50`}>
-      <ScrollView contentContainerStyle={tw`p-6 pb-12`}>
-        
-        <View style={tw`flex-row justify-between items-center mb-6`}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={tw`bg-gray-200 w-10 h-10 rounded-full items-center justify-center`}>
-            <Text style={tw`font-bold text-gray-700`}>←</Text>
-          </TouchableOpacity>
-          <Text style={tw`text-2xl font-black text-blue-900`}>My Profile</Text>
-          <View style={tw`w-10`} />
-        </View>
+    <SafeAreaView style={tw`flex-1 bg-[#0a0e1a]`}>
+      <KeyboardAvoidingView style={tw`flex-1`} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView contentContainerStyle={tw`p-6 pb-16`}>
+          <Animated.View style={{ opacity: fadeAnim }}>
 
-        <View style={tw`items-center mb-8`}>
-          <View style={tw`w-24 h-24 bg-blue-600 rounded-full items-center justify-center shadow-md mb-3`}>
-            <Text style={tw`text-white text-4xl font-bold`}>{name.charAt(0)}</Text>
-          </View>
-          <Text style={tw`text-xl font-bold text-gray-800`}>{name}</Text>
-          <Text style={tw`text-gray-500 font-medium`}>{email}</Text>
-        </View>
+            {/* Header */}
+            <View style={tw`flex-row justify-between items-center mb-6`}>
+              <TouchableOpacity onPress={() => navigation.goBack()} style={tw`bg-[#1a1f35] w-11 h-11 rounded-full items-center justify-center border border-[#2d3555]`}>
+                <Text style={tw`font-bold text-white text-lg`}>←</Text>
+              </TouchableOpacity>
+              <Text style={tw`text-2xl font-black text-white`}>My Profile</Text>
+              <View style={tw`w-11`} />
+            </View>
 
-        <View style={tw`bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-6`}>
-          <Text style={tw`text-lg font-extrabold text-gray-800 mb-4`}>Personal Details</Text>
+            {/* Avatar */}
+            <View style={tw`items-center mb-8`}>
+              <View style={tw`w-24 h-24 bg-[#6c5ce7] rounded-3xl items-center justify-center mb-3`}>
+                <Text style={tw`text-white text-4xl font-bold`}>{name.charAt(0)}</Text>
+              </View>
+              <Text style={tw`text-xl font-bold text-white`}>{name}</Text>
+              <Text style={tw`text-[#8892b0] font-medium`}>{email}</Text>
+            </View>
 
-          <View style={tw`mb-4`}>
-            <Text style={tw`text-sm font-bold text-gray-600 mb-1 ml-1`}>Travel Biography</Text>
-            <TextInput 
-              style={tw`w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-800`}
-              placeholder="Tell others about your travel style..."
-              multiline
-              numberOfLines={3}
-              textAlignVertical="top"
-              value={bio}
-              onChangeText={setBio}
-            />
-          </View>
+            {/* Profile Form */}
+            <View style={tw`bg-[#1a1f35] p-6 rounded-3xl border border-[#2d3555] mb-6`}>
+              <Text style={tw`text-xs font-bold text-[#6c5ce7] tracking-widest uppercase mb-4`}>PERSONAL DETAILS</Text>
 
-          <View style={tw`mb-4`}>
-            <Text style={tw`text-sm font-bold text-gray-600 mb-1 ml-1`}>Hobbies (comma separated)</Text>
-            <TextInput 
-              style={tw`w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-800`}
-              placeholder="e.g. Hiking, Photography, Food Tasting"
-              value={hobbies}
-              onChangeText={setHobbies}
-            />
-          </View>
+              {/* Bio */}
+              <View style={tw`mb-5`}>
+                <Text style={tw`text-xs font-bold text-[#8892b0] mb-2 ml-1 uppercase tracking-wider`}>Travel Biography</Text>
+                <TextInput
+                  style={tw`w-full bg-[#0a0e1a] border border-[#2d3555] rounded-2xl px-4 py-3 text-base text-white`}
+                  placeholder="Tell others about your travel style..."
+                  placeholderTextColor="#4a5568"
+                  multiline
+                  numberOfLines={3}
+                  textAlignVertical="top"
+                  value={bio}
+                  onChangeText={setBio}
+                />
+              </View>
 
-          <View style={tw`mb-6`}>
-            <Text style={tw`text-sm font-bold text-gray-600 mb-1 ml-1`}>Skills (comma separated)</Text>
-            <TextInput 
-              style={tw`w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-800`}
-              placeholder="e.g. Translation, Driving, Content Creation"
-              value={skills}
-              onChangeText={setSkills}
-            />
-          </View>
+              {/* Hobbies */}
+              <View style={tw`mb-5`}>
+                <Text style={tw`text-xs font-bold text-[#8892b0] mb-2 ml-1 uppercase tracking-wider`}>Hobbies</Text>
+                <TextInput
+                  style={tw`w-full bg-[#0a0e1a] border border-[#2d3555] rounded-2xl px-4 py-3 text-base text-white`}
+                  placeholder="e.g. Hiking, Photography, Food"
+                  placeholderTextColor="#4a5568"
+                  value={hobbies}
+                  onChangeText={setHobbies}
+                />
+              </View>
 
-          <TouchableOpacity 
-            style={tw`bg-blue-600 w-full rounded-2xl py-4 items-center shadow-lg mb-4 ${loading ? 'opacity-70' : ''}`}
-            onPress={handleUpdateProfile}
-            disabled={loading}
-          >
-            <Text style={tw`text-white font-bold text-lg`}>{loading ? 'Saving Changes...' : 'Save Profile'}</Text>
-          </TouchableOpacity>
+              {/* Skills */}
+              <View style={tw`mb-6`}>
+                <Text style={tw`text-xs font-bold text-[#8892b0] mb-2 ml-1 uppercase tracking-wider`}>Skills</Text>
+                <TextInput
+                  style={tw`w-full bg-[#0a0e1a] border border-[#2d3555] rounded-2xl px-4 py-3 text-base text-white`}
+                  placeholder="e.g. Translation, Driving, Photography"
+                  placeholderTextColor="#4a5568"
+                  value={skills}
+                  onChangeText={setSkills}
+                />
+              </View>
 
-          <TouchableOpacity 
-            style={tw`bg-red-50 border border-red-200 w-full rounded-2xl py-4 items-center shadow-sm`}
-            onPress={async () => {
-              const { logout } = require('../utils/auth');
-              await logout();
-              // In mobile, we might need a context or AppNavigator restart, 
-              // but reloading the app handles temporary mobile UX.
-              Alert.alert('Logged Out', 'Please restart the app to clear session fully.');
-            }}
-          >
-            <Text style={tw`text-red-600 font-bold text-lg`}>Log Out</Text>
-          </TouchableOpacity>
-        </View>
+              {/* Save */}
+              <TouchableOpacity
+                style={tw`bg-[#6c5ce7] w-full rounded-2xl py-4.5 items-center ${loading ? 'opacity-70' : ''}`}
+                onPress={handleUpdateProfile}
+                disabled={loading}
+              >
+                <Text style={tw`text-white font-black text-lg tracking-wide`}>{loading ? 'Saving...' : 'Save Profile →'}</Text>
+              </TouchableOpacity>
+            </View>
 
-      </ScrollView>
+          </Animated.View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

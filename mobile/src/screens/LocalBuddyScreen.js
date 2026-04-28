@@ -1,62 +1,77 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, SafeAreaView, ActivityIndicator, Animated } from 'react-native';
 import tw from 'twrnc';
 import api from '../services/api';
 
 export default function LocalBuddyScreen({ navigation }) {
   const [guides, setGuides] = useState([]);
   const [loading, setLoading] = useState(true);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     api.get('/api/guides')
       .then(res => setGuides(res.data))
       .catch(err => console.log(err))
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }).start();
+      });
   }, []);
 
   return (
-    <SafeAreaView style={tw`flex-1 bg-gray-50`}>
-      <View style={tw`flex-row items-center p-6 border-b border-gray-100 bg-white`}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={tw`bg-gray-100 w-10 h-10 rounded-full items-center justify-center mr-4`}>
-          <Text style={tw`font-bold text-gray-700`}>←</Text>
+    <SafeAreaView style={tw`flex-1 bg-[#0a0e1a]`}>
+      {/* Header */}
+      <View style={tw`flex-row items-center p-6 border-b border-[#2d3555]`}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={tw`bg-[#1a1f35] w-11 h-11 rounded-full items-center justify-center mr-4 border border-[#2d3555]`}>
+          <Text style={tw`font-bold text-white text-lg`}>←</Text>
         </TouchableOpacity>
-        <Text style={tw`text-2xl font-extrabold text-indigo-900`}>Hire Local Guide</Text>
+        <View>
+          <Text style={tw`text-2xl font-black text-white`}>Local Guides</Text>
+          <Text style={tw`text-[#8892b0] text-xs font-medium`}>Verified local experts near you</Text>
+        </View>
       </View>
-      
+
       {loading ? (
         <View style={tw`flex-1 items-center justify-center`}>
-          <ActivityIndicator size="large" color="#4f46e5" />
+          <ActivityIndicator size="large" color="#00cec9" />
+          <Text style={tw`text-[#8892b0] mt-4 font-medium`}>Finding guides...</Text>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={tw`p-6 pb-12`}>
-          {guides.length === 0 ? (
-            <Text style={tw`text-center text-gray-500 mt-10 text-lg font-medium`}>No verified local guides found.</Text>
-          ) : guides.map(guide => (
-            <View key={guide._id} style={tw`bg-white p-5 rounded-3xl mb-5 shadow-sm border border-gray-100`}>
-              <View style={tw`flex-row items-center mb-4 pb-4 border-b border-gray-50`}>
-                <View style={tw`bg-indigo-100 w-14 h-14 rounded-full items-center justify-center mr-4`}>
-                  <Text style={tw`text-2xl`}>🤝</Text>
+        <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+          <ScrollView contentContainerStyle={tw`p-6 pb-16`}>
+            {guides.length === 0 ? (
+              <View style={tw`items-center mt-16`}>
+                <Text style={tw`text-6xl mb-4`}>🤝</Text>
+                <Text style={tw`text-white text-xl font-bold mb-2`}>No guides found</Text>
+                <Text style={tw`text-[#8892b0] text-center text-sm font-medium px-8`}>No verified local guides are available yet. Check back soon!</Text>
+              </View>
+            ) : guides.map(guide => (
+              <View key={guide._id} style={tw`bg-[#1a1f35] p-5 rounded-3xl mb-5 border border-[#2d3555]`}>
+                <View style={tw`flex-row items-center mb-4 pb-4 border-b border-[#2d3555]`}>
+                  <View style={tw`bg-[#00cec920] w-14 h-14 rounded-2xl items-center justify-center mr-4`}>
+                    <Text style={tw`text-2xl`}>🤝</Text>
+                  </View>
+                  <View style={tw`flex-1`}>
+                    <Text style={tw`text-white font-black text-lg`}>{guide.name}</Text>
+                    <Text style={tw`text-[#00cec9] font-bold text-sm`}>📍 {guide.location}</Text>
+                  </View>
+                  <View style={tw`bg-[#00cec920] px-3 py-1.5 rounded-full border border-[#00cec9]`}>
+                    <Text style={tw`text-[#00cec9] font-bold text-xs uppercase`}>Verified</Text>
+                  </View>
                 </View>
-                <View style={tw`flex-1`}>
-                  <Text style={tw`text-gray-900 font-black text-lg`}>{guide.name}</Text>
-                  <Text style={tw`text-indigo-600 font-bold`}>📍 {guide.location}</Text>
-                </View>
-                <View style={tw`bg-green-100 px-3 py-1 rounded-full`}>
-                  <Text style={tw`text-green-800 font-bold text-xs uppercase`}>Verified</Text>
+
+                <Text style={tw`text-[#8892b0] mb-4 font-medium italic`}>"{guide.expertise}"</Text>
+
+                <View style={tw`flex-row justify-between items-center bg-[#0a0e1a] p-4 rounded-2xl`}>
+                  <Text style={tw`text-white font-black text-xl`}>${guide.rate}<Text style={tw`text-[#8892b0] text-sm font-medium`}>/day</Text></Text>
+                  <TouchableOpacity style={tw`bg-[#00cec9] px-6 py-3 rounded-xl`}>
+                    <Text style={tw`text-[#0a0e1a] font-bold tracking-wide`}>Message</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
-              
-              <Text style={tw`text-gray-600 mb-4 font-medium italic`}>"{guide.expertise}"</Text>
-              
-              <View style={tw`flex-row justify-between items-center bg-gray-50 p-4 rounded-2xl`}>
-                <Text style={tw`text-indigo-900 font-black text-xl`}>${guide.rate}/day</Text>
-                <TouchableOpacity style={tw`bg-indigo-600 px-6 py-3 rounded-xl shadow-md`}>
-                  <Text style={tw`text-white font-bold tracking-wide`}>Message</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
-        </ScrollView>
+            ))}
+          </ScrollView>
+        </Animated.View>
       )}
     </SafeAreaView>
   );
