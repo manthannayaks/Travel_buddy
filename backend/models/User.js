@@ -8,12 +8,45 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: [true, 'Please add an email'],
+    required: true,
     unique: true
+  },
+  phoneNumber: {
+    type: String,
+    required: true
   },
   password: {
     type: String,
     required: [true, 'Please add a password']
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false
+  },
+  bio: {
+    type: String,
+    default: ''
+  },
+  hobbies: {
+    type: [String],
+    default: []
+  },
+  skills: {
+    type: [String],
+    default: []
+  },
+  idDocument: {
+    type: String,
+    default: ''
+  },
+  verificationStatus: {
+    type: String,
+    enum: ['Pending', 'Verified', 'Rejected'],
+    default: 'Pending'
+  },
+  location: {
+    latitude: Number,
+    longitude: Number
   }
 }, {
   timestamps: true

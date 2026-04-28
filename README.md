@@ -1,6 +1,6 @@
-# Travel Buddy Web Application 🌍
+# Travel Buddy Mobile Application 🌍📱
 
-The ultimate ecosystem linking travelers, locals, and sponsors. Explore the world affordably, socially, and safely.
+The ultimate ecosystem linking travelers, locals, and sponsors. Explore the world affordably, socially, and safely from the palm of your hand.
 
 ## 🚀 Features
 - **User Authentication**: Secure JWT-based Login and Registration.
@@ -14,7 +14,7 @@ The ultimate ecosystem linking travelers, locals, and sponsors. Explore the worl
 ---
 
 ## 💻 Tech Stack
-- **Frontend**: React.js 18, React Router v6, Tailwind CSS v3, Axios
+- **Mobile App**: React Native, Expo, React Navigation, Axios
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB (Mongoose ORM)
 - **Security**: JSON Web Tokens (JWT), Bcrypt.js
@@ -25,19 +25,20 @@ The ultimate ecosystem linking travelers, locals, and sponsors. Explore the worl
 Before running the project locally, please ensure that you have the following installed:
 1. **[Node.js](https://nodejs.org/en/download/)** (v16.14.0 or above)
 2. **[MongoDB](https://www.mongodb.com/try/download/community)** (Running locally via MongoDB Compass, or utilize a MongoDB Atlas Cloud URI).
+3. **Expo Go** App installed on your physical iOS or Android device.
 
 ---
 
 ## ⚙️ How to Start the Project Locally
 
-The project is split into two folders: `frontend` and `backend`. You must run both concurrently.
+The project is split into two folders: `backend` (API Server) and `mobile` (React Native app). You must run both concurrently.
 
 ### 1. Backend Setup (API & Database)
 1. Open your terminal and navigate to the backend folder:
    ```bash
-   cd Travel_buddy/backend
+   cd backend
    ```
-2. Install the backend dependencies:
+2. Install the backend dependencies (if not already installed):
    ```bash
    npm install
    ```
@@ -45,57 +46,42 @@ The project is split into two folders: `frontend` and `backend`. You must run bo
    - Ensure the `.env` file exists inside `/backend`.
    - By default, it connects to a local MongoDB:
      ```env
-     PORT=5000
+     PORT=5001
      MONGO_URI=mongodb://localhost:27017/travel_buddy
      JWT_SECRET=supersecretpassword123
      ```
-   - If using MongoDB Atlas, replace `mongodb://localhost:27017/travel_buddy` with your Atlas connection string.
 4. Start the backend server:
    ```bash
    npm run dev
    ```
-   *You should see two messages in the console: "Server running on port 5000" and "MongoDB Connected".*
+   *You should see a message in the console like: "Server running on port 5001".*
 
-### 2. Frontend Setup (React UI)
-1. Open a **new, separate terminal** and navigate to the frontend folder:
+### 2. Mobile Setup (React Native App)
+1. Open a **new, separate terminal** and navigate to the mobile folder:
    ```bash
-   cd Travel_buddy/frontend
+   cd mobile
    ```
-2. Install the frontend dependencies:
+2. Install the mobile dependencies (if not already installed):
    ```bash
    npm install
    ```
-3. Start the Vite development server:
+3. Configure the API URL:
+   - Go to `mobile/src/services/api.js` and ensure `BASE_URL` points to your computer's local Wi-Fi IP address (e.g., `http://192.168.1.100:5001`). `localhost` will not work on a physical device.
+4. Start the Expo development server:
    ```bash
-   npm run dev
+   npx expo start
    ```
-4. Access the application:
-   - Command line will output the local network URL. Click it or manually go to `http://localhost:5173/` in your browser.
+5. Run the application:
+   - Scan the QR code generated in your terminal using the **Expo Go** app on your smartphone, or press `a` to run on an Android emulator / `i` for iOS simulator.
 
 ---
 
 ## 🐛 Common Issues and Fixes
 
-During testing or setup, you might encounter the following common issues:
+### 1. Network Error on Mobile
+- **Symptom**: The mobile app loads but fails to login or fetch data, showing a network error.
+- **Fix**: Ensure your smartphone and your development laptop are on the exact same Wi-Fi network. Also, verify that `BASE_URL` in `mobile/src/services/api.js` matches your laptop's current local IP address, not `localhost`.
 
-### 1. MongoDB Connection Error (`MongoNetworkError`)
-- **Symptom**: The backend server crashes immediately upon running `npm run dev` with a connection refused error.
-- **Fix**: Ensure that your local MongoDB instance is actually running on your machine (usually as a background service). If on macOS, you can run `brew services start mongodb-community`. If using Atlas, ensure your IP address is whitelisted in the Network Access tab.
-
-### 2. CORS Errors in the Browser Console
-- **Symptom**: You trigger an API call from the frontend, but it fails, and Google Chrome DevTools displays a CORS Policy blockade.
-- **Fix**: The backend uses the `cors` npm package correctly in `server.js`. Check that `frontend/src/services/api.js` points to the correct backend host (`http://localhost:5000`). If your backend restarted on a different port like `5001`, you must update the `baseURL` inside `api.js`.
-
-### 3. "Not authorized, token failed" / Users getting logged out
-- **Symptom**: Features like Travel Matching or Applying for Sponsorship fail with a 401 Unauthorized error in the console.
-- **Fix**: Your JWT may have expired due to time or you altered the `JWT_SECRET`. To fix, clear your browser's Local Storage or simply click **Log Out** and sign back in to generate a fresh token payload.
-
-### 4. Screens show "No guides found" or "No opportunities found"
-- **Symptom**: The UI appears blank on specific routes because your local mongo database is entirely fresh and empty.
-- **Fix**: We've included **Seed Demo Data** buttons on the Local Buddy and Sponsored Travel dashboards. Click these buttons to instruct the API to automatically populate your local MongoDB with realistic mock data! For Travel Matching, you'll need to create a test user via Signup, log dummy trips, and match against them.
-
----
-
-## 🔮 Future Improvements (Performance)
-1. Added database indexes for `destination` (Trips) and `location` (Guides) to dramatically improve search filtering at scale.
-2. Global custom error handling middleware injected to maintain predictable modular responses.
+### 2. MongoDB Connection Error
+- **Symptom**: The backend server crashes immediately upon running.
+- **Fix**: Ensure that your local MongoDB instance is running. If on macOS, run `brew services start mongodb-community`.

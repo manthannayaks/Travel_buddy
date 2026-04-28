@@ -21,12 +21,14 @@ const tripRoutes = require('./routes/tripRoutes');
 const guideRoutes = require('./routes/guideRoutes');
 const sponsorshipRoutes = require('./routes/sponsorshipRoutes');
 const skillRoutes = require('./routes/skillRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 app.use('/api/users', userRoutes);
 app.use('/api/trips', tripRoutes);
 app.use('/api/guides', guideRoutes);
 app.use('/api/sponsorships', sponsorshipRoutes);
 app.use('/api/skills', skillRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Global Error Handler must be the last middleware
 app.use(errorHandler);
