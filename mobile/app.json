@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Travel Buddy",
-    "slug": "travel-buddy",
+    "slug": "mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
