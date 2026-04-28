@@ -93,7 +93,12 @@ export default function SignupScreen({ navigation, setAuth }) {
     if (!name || !email || !password || !phoneNumber) return Alert.alert('Error', 'Please fill all fields to lock your identity');
     setLoading(true);
     try {
-      await api.post('/api/users/generate-otp', { phoneNumber });
+      const res = await api.post('/api/users/generate-otp', { phoneNumber });
+      // Auto-fill OTP from server response (mock SMS for development)
+      if (res.data.otp) {
+        setOtp(res.data.otp);
+        Alert.alert('📱 OTP Received', `Your verification code is: ${res.data.otp}\n\nIt has been auto-filled for you.`);
+      }
       setStep(2);
     } catch (err) {
       Alert.alert('Error', err.response?.data?.message || 'Failed to send OTP to phone');

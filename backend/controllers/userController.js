@@ -33,7 +33,8 @@ const generateOTP = async (req, res) => {
   console.log(`🔒 Your TravelBuddy Verification Code is: ${otp}`);
   console.log(`========================================\n`);
 
-  res.status(200).json({ message: 'OTP sent successfully (Check server terminal)' });
+  // Return OTP in response for mobile app development (replace with real SMS in production)
+  res.status(200).json({ message: 'OTP sent successfully', otp: otp });
 };
 
 // @desc    Register a new user
