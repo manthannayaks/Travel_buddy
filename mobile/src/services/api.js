@@ -1,8 +1,12 @@
 import axios from 'axios';
 import { getToken } from '../utils/auth';
 
-// Use the laptop's physical Wi-Fi IP address so Expo Go on your smartphone can connect to Node.js
-const BASE_URL = 'https://travel-buddy-backend-m8he.onrender.com';
+import { Platform } from 'react-native';
+
+// Use local backend for web testing, and production for mobile
+const BASE_URL = Platform.OS === 'web' 
+  ? 'http://localhost:5001' 
+  : 'https://travel-buddy-backend-m8he.onrender.com';
 
 const api = axios.create({
   baseURL: BASE_URL,
