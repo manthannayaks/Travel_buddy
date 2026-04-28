@@ -18,6 +18,7 @@ export default function LoginScreen({ navigation, setAuth }) {
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId: '251186632070-djvmr3vuqmafkts6ldc8b78jm7oho47l.apps.googleusercontent.com',
+    androidClientId: '251186632070-9cgrcr3296omgnq3066rqdc7lasn2ha6.apps.googleusercontent.com',
     redirectUri: Platform.select({
       web: 'https://auth.expo.io/@manthannayaks/mobile',
       default: undefined,
