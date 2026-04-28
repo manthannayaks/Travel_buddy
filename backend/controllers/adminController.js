@@ -2,6 +2,8 @@ const User = require('../models/User');
 const Trip = require('../models/Trip');
 const Sponsorship = require('../models/Sponsorship');
 const Skill = require('../models/Skill');
+const Guide = require('../models/Guide');
+const ActivityLog = require('../models/ActivityLog');
 
 // @desc    Get complete platform statistics
 // @route   GET /api/admin/stats
@@ -12,27 +14,57 @@ const getPlatformStats = async (req, res) => {
     const tripCount = await Trip.countDocuments();
     const sponsorCount = await Sponsorship.countDocuments();
     const skillCount = await Skill.countDocuments();
+    const guideCount = await Guide.countDocuments();
 
     res.json({
       users: userCount,
       trips: tripCount,
       sponsorships: sponsorCount,
-      skills: skillCount
+      skills: skillCount,
+      guides: guideCount
     });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching platform statistics' });
   }
 };
 
-// @desc    Get all users
+// @desc    Get all users with activity summary
 // @route   GET /api/admin/users
 // @access  Private/Admin
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({}).select('-password');
-    res.json(users);
+    const users = await User.find({}).select('-password').sort({ createdAt: -1 });
+    
+    // Enrich each user with their last activity
+    const enrichedUsers = await Promise.all(users.map(async (user) => {
+      const lastActivity = await ActivityLog.findOne({ user: user._id }).sort({ createdAt: -1 });
+      const activityCount = await ActivityLog.countDocuments({ user: user._id });
+      return {
+        ...user.toObject(),
+        lastActivity: lastActivity ? { action: lastActivity.action, date: lastActivity.createdAt } : null,
+        totalActivities: activityCount
+      };
+    }));
+    
+    res.json(enrichedUsers);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching users' });
+  }
+};
+
+// @desc    Get activity feed
+// @route   GET /api/admin/activity
+// @access  Private/Admin
+const getActivityFeed = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 50;
+    const activities = await ActivityLog.find()
+      .populate('user', 'name email')
+      .sort({ createdAt: -1 })
+      .limit(limit);
+    res.json(activities);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching activity feed' });
   }
 };
 
@@ -99,6 +131,7 @@ const setupFirstAdmin = async (req, res) => {
 module.exports = {
   getPlatformStats,
   getAllUsers,
+  getActivityFeed,
   deleteUser,
   promoteToAdmin,
   setupFirstAdmin

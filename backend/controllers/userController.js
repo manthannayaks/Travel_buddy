@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const ActivityLog = require('../models/ActivityLog');
 const { OAuth2Client } = require('google-auth-library');
 
 // In-Memory store for mock OTPs (Phone -> OTP mapping)
@@ -71,6 +72,8 @@ const registerUser = async (req, res) => {
     });
 
     if (user) {
+      // Log signup activity
+      await ActivityLog.create({ user: user._id, action: 'SIGNUP', details: `New user registered: ${user.email}` });
       res.status(201).json({
         _id: user._id,
         name: user.name,
@@ -98,6 +101,8 @@ const loginUser = async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user && (await user.matchPassword(password))) {
+    // Log login activity
+    await ActivityLog.create({ user: user._id, action: 'LOGIN', details: `User logged in: ${user.email}` });
     res.json({
       _id: user.id,
       name: user.name,
@@ -137,6 +142,8 @@ const authGoogleUser = async (req, res) => {
       });
     }
 
+    // Log Google auth activity
+    await ActivityLog.create({ user: user._id, action: 'GOOGLE_AUTH', details: `Google sign-in: ${user.email}` });
     res.json({
       _id: user._id,
       name: user.name,

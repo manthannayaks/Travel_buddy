@@ -3,6 +3,7 @@ const router = express.Router();
 const { 
   getPlatformStats, 
   getAllUsers, 
+  getActivityFeed,
   deleteUser, 
   promoteToAdmin, 
   setupFirstAdmin 
@@ -15,6 +16,7 @@ router.post('/setup-first-admin', setupFirstAdmin);
 // Protected Admin Routes
 router.route('/stats').get(protectAdmin, getPlatformStats);
 router.route('/users').get(protectAdmin, getAllUsers);
+router.route('/activity').get(protectAdmin, getActivityFeed);
 router.route('/users/:id').delete(protectAdmin, deleteUser);
 router.route('/promote/:id').put(protectAdmin, promoteToAdmin);
 

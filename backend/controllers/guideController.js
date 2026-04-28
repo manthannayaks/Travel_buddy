@@ -1,4 +1,5 @@
 const Guide = require('../models/Guide');
+const ActivityLog = require('../models/ActivityLog');
 
 // @desc    Get locals/guides based on location query
 // @route   GET /api/guides?location=value
@@ -9,11 +10,40 @@ const getGuides = async (req, res) => {
   try {
     let query = {};
     if (location && location !== 'All Locations') {
-      query.location = new RegExp(location, 'i'); // Case insensitive regex match
+      query.location = new RegExp(location, 'i');
     }
 
-    const guides = await Guide.find(query);
+    const guides = await Guide.find(query).sort({ createdAt: -1 });
     res.status(200).json(guides);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// @desc    Register as a local guide
+// @route   POST /api/guides
+// @access  Private
+const createGuide = async (req, res) => {
+  const { location, expertise, languages, price } = req.body;
+
+  if (!location || !expertise || !price) {
+    return res.status(400).json({ message: 'Please provide location, expertise, and price' });
+  }
+
+  try {
+    const guide = await Guide.create({
+      user: req.user.id,
+      name: req.user.name,
+      location,
+      expertise,
+      languages: languages || ['English'],
+      price
+    });
+
+    // Log activity
+    await ActivityLog.create({ user: req.user.id, action: 'GUIDE_REGISTERED', details: `Registered as guide in ${location}` });
+
+    res.status(201).json(guide);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
   }
@@ -24,7 +54,7 @@ const getGuides = async (req, res) => {
 // @access  Public
 const seedGuides = async (req, res) => {
   try {
-    await Guide.deleteMany(); // Clear existing
+    await Guide.deleteMany();
     
     const sampleGuides = [
       { name: 'Marco Rossi', location: 'Rome, Italy', expertise: 'History & Arts', languages: ['Italian', 'English'], price: '€20/hr', rating: 4.9 },
@@ -42,5 +72,6 @@ const seedGuides = async (req, res) => {
 
 module.exports = {
   getGuides,
+  createGuide,
   seedGuides
 };
