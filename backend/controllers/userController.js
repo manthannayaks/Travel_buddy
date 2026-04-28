@@ -138,7 +138,8 @@ const authGoogleUser = async (req, res) => {
       user = await User.create({
         name,
         email,
-        password: randomPassword
+        password: randomPassword,
+        phoneNumber: 'Not provided' // Google auth doesn't give phone number
       });
     }
 
